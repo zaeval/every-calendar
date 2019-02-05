@@ -1,0 +1,95 @@
+<template>
+    <div class="login uk-height-1-1 uk-cover-container uk-background-secondary">
+
+        <img srcset="https://picsum.photos/640/700/?image=1044 640w,
+		             https://picsum.photos/960/700/?image=1044 960w,
+		             https://picsum.photos/1200/900/?image=1044 1200w,
+		             https://picsum.photos/2000/1000/?image=1044 2000w"
+             sizes="100vw"
+             src="https://picsum.photos/1200/900/?image=1044" alt="" data-uk-cover data-uk-img
+        >
+
+        <div class="uk-position-cover uk-overlay-primary"></div>
+
+        <div class="uk-flex uk-flex-center uk-flex-middle uk-height-viewport uk-light uk-position-relative uk-position-z-index">
+            <div class="uk-position-bottom-center uk-position-small uk-visible@m">
+                <span class="uk-text-small uk-text-muted">© 2019 among - <a
+                        href="https://github.com/zzseba78/Kick-Off">Created by zaeval</a> | Built with <a
+                        href="http://getuikit.com" title="Visit UIkit 3 site" target="_blank" data-uk-tooltip><span
+                        data-uk-icon="uikit"></span></a></span>
+            </div>
+            <div class="uk-width-medium uk-padding-small" uk-scrollspy="cls: uk-animation-fade">
+                <div class="uk-text-center uk-margin">
+                    <img src="img/login-logo.svg" alt="Logo">
+                </div>
+                <form action="login-dark.html">
+                    <fieldset class="uk-fieldset">
+                        <div class="uk-margin">
+                            <div class="uk-inline uk-width-1-1">
+                                <span class="uk-form-icon uk-form-icon-flip" data-uk-icon="icon: user"></span>
+                                <input class="uk-input uk-border-pill" required placeholder="Username" type="text">
+                            </div>
+                        </div>
+                        <div class="uk-margin">
+                            <div class="uk-inline uk-width-1-1">
+                                <span class="uk-form-icon uk-form-icon-flip" data-uk-icon="icon: lock"></span>
+                                <input class="uk-input uk-border-pill" required placeholder="Password" type="password">
+                            </div>
+                        </div>
+
+                        <div class="uk-margin">
+                            <label><input class="uk-checkbox" type="checkbox"> Keep me logged in</label>
+                        </div>
+                        <div class="uk-margin">
+                            <button type="submit" class="uk-button uk-button-primary uk-border-pill uk-width-1-1">LOG
+                                IN
+                            </button>
+                        </div>
+                    </fieldset>
+                </form>
+                <div>
+                    <div class="uk-text-center">
+                        <a class="uk-link-reset uk-text-small"
+                           data-uk-toggle="target: #recover;animation: uk-animation-slide-top-small">Forgot your
+                            password?</a>
+                    </div>
+                    <div class="uk-margin-small-top" id="recover" hidden>
+                        <form action="login-dark.html">
+
+                            <div class="uk-margin-small">
+                                <div class="uk-inline uk-width-1-1">
+                                    <span class="uk-form-icon uk-form-icon-flip" data-uk-icon="icon: mail"></span>
+                                    <input class="uk-input uk-border-pill" placeholder="E-mail" required type="text">
+                                </div>
+                            </div>
+                            <div class="uk-margin-small">
+                                <button type="submit" class="uk-button uk-button-primary uk-border-pill uk-width-1-1">
+                                    SEND PASSWORD
+                                </button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+
+    export default {
+        name: 'Login',
+        components: {},
+        data: function () {
+            return {
+                errorMessage: '로그인이 유효하지않습니다.',
+
+            };
+        },
+    }
+</script>
+
+<style>
+
+</style>
