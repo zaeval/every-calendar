@@ -20,9 +20,9 @@
             </div>
             <div class="uk-width-medium uk-padding-small" uk-scrollspy="cls: uk-animation-fade">
                 <div class="uk-text-center uk-margin">
-                    <img src="img/login-logo.svg" alt="Logo">
+                    <img src="../assets/long-logo.png" alt="Logo">
                 </div>
-                <form action="login-dark.html">
+                <form>
                     <fieldset class="uk-fieldset">
                         <div class="uk-margin">
                             <div class="uk-inline uk-width-1-1">
@@ -37,22 +37,15 @@
                             </div>
                         </div>
 
-                        <div class="uk-margin">
-                            <label><input class="uk-checkbox" type="checkbox"> Keep me logged in</label>
-                        </div>
-                        <div class="uk-margin">
+                        <div class="uk-margin uk-width-1-1">
                             <button type="submit" class="uk-button uk-button-primary uk-border-pill uk-width-1-1">LOG
-                                IN
+                                IN & SIGN UP
                             </button>
+
                         </div>
                     </fieldset>
                 </form>
                 <div>
-                    <div class="uk-text-center">
-                        <a class="uk-link-reset uk-text-small"
-                           data-uk-toggle="target: #recover;animation: uk-animation-slide-top-small">Forgot your
-                            password?</a>
-                    </div>
                     <div class="uk-margin-small-top" id="recover" hidden>
                         <form action="login-dark.html">
 
@@ -91,5 +84,4 @@
 </script>
 
 <style>
-
 </style>
