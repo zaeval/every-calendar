@@ -15,8 +15,10 @@
                     <div class="uk-position-top-right uk-padding-small">
                         <div class="uk-flex">
                             <div class="uk-position-relative uk-display-inline-block switch-text-wrapper">
-                                <span class="uk-transition-fade uk-position-absolute" :class="{'uk-opacity-1':sw}">비는시간</span>
-                                <span class="uk-transition-fade uk-position-absolute" :class="{'uk-opacity-1':!sw}">겹친시간</span>
+                                <span class="uk-transition-fade uk-position-absolute"
+                                      :class="{'uk-opacity-1':sw}">비는시간</span>
+                                <span class="uk-transition-fade uk-position-absolute"
+                                      :class="{'uk-opacity-1':!sw}">겹친시간</span>
                             </div>
                         </div>
                         <label class="uk-switch uk-position-relative" @click="clickSwitch" for="default-1">
@@ -29,20 +31,24 @@
             <div class="uk-width-1-5 uk-height-1-1 uk-position-center-right uk-position-fixed uk-position-z-index ">
                 <div class=" uk-width-4-5 uk-margin uk-card uk-card-hover uk-card-default uk-card-body uk-margin uk-position-center">
                     <ul multiple uk-accordion>
-                        <li class="uk-open">
+                        <li class="uk-open uk-height-max-large">
                             <a class="uk-accordion-title" href="">반영</a>
                             <div class="uk-accordion-content">
-                                <ul class="uk-nav uk-nav-default" ref="active-list">
-                                    <li v-for="(ai,index) in activeList"><a @click="clickItem" active=true>{{ ai }}</a>
+                                <ul class="uk-nav uk-nav-default uk-height-max-medium overflow-scroll"
+                                    ref="active-list">
+                                    <li v-for="(ai,index) in activeList"><a @click="clickItem" active=true>{{ ai.name
+                                        }}</a>
                                     </li>
                                 </ul>
                             </div>
                         </li>
-                        <li class="uk-open">
+                        <li class="uk-open uk-height-max-large">
                             <a class="uk-accordion-title" href="">미반영</a>
                             <div class="uk-accordion-content">
-                                <ul class="uk-nav uk-nav-default" ref="not-active-list">
-                                    <li v-for="(ai,index) in notActiveList"><a @click="clickItem" active=false>{{ ai
+                                <ul class="uk-nav uk-nav-default uk-height-max-medium overflow-scroll"
+                                    ref="not-active-list">
+                                    <li v-for="(ai,index) in notActiveList"><a @click="clickItem" active=false>{{
+                                        ai.name
                                         }}</a></li>
                                 </ul>
                             </div>
@@ -51,6 +57,7 @@
                 </div>
             </div>
         </div>
+        <Loading ref="loading"></Loading>
     </div>
 </template>
 
@@ -61,35 +68,144 @@
     import 'fullcalendar/dist/fullcalendar.css'
     import GlobalNavigation from "../components/GlobalNavigation";
     import AddFriendModal from "../components/AddFriendModal";
+    import axios from "axios";
+    import Loading from "../components/Loading";
 
     export default {
         name: 'Main',
-        components: {AddFriendModal, GlobalNavigation},
+        components: {Loading, AddFriendModal, GlobalNavigation},
         data: function () {
             return {
                 modal: 'add-friend',
-                activeList: ['active'],
-                notActiveList: ['non-active'],
+                activeList: [],
+                notActiveList: [],
                 sw: false,
+                events:[],
+                union:[],
+                empty:[],
             };
         },
+        created: function () {
+            axios.get('/restful/friends/')
+                .then((response) => {
+                    this.notActiveList = response.data.friends
+                })
+                .catch((error) => {
+                    UIkit.notification('친구목록을 가져오는데 실패했습니다', danger)
+                })
+        },
         methods: {
-            clickItem: function (event) {
-                if (event.target.getAttribute('active') == 'true') {
-                    this.notActiveList.push(this.activeList.splice(this.activeList.indexOf(event.target.innerText), 1)[0]);
-                    this.notActiveList.sort();
-                } else if (event.target.getAttribute('active') == 'false') {
-                    this.activeList.push(this.notActiveList.splice(this.notActiveList.indexOf(event.target.innerText), 1)[0]);
-                    this.activeList.sort();
+            deparateHoursMinutes:function(number){
+                return{
+                    hours:Math.floor(number),
+                    minutes:number*10%10/10*60
                 }
             },
+            clickItem: function (event) {
+                if (event.target.getAttribute('active') == 'true') {
+                    this.notActiveList.push(this.activeList.splice(this.activeList.findIndex((friend) => friend.name == event.target.innerText), 1)[0]);
+                    this.notActiveList.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
+                } else if (event.target.getAttribute('active') == 'false') {
+                    this.activeList.push(this.notActiveList.splice(this.notActiveList.findIndex((friend) => friend.name == event.target.innerText), 1)[0]);
+                    this.activeList.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
+                }
+                this.$refs.loading.show();
+
+               this.refreshCalendar();
+            },
             clickSwitch: function (event) {
-                console.log(event);
+                console.log("here");
                 this.sw = event.target.checked;
+                this.events=[];
+                var today = new Date();
+                var minusDate = today.getDay();
+                var year = today.getFullYear();
+                var month = today.getMonth();
+                var date = today.getDate() - minusDate+1;
+                if(!this.sw) {
+                    for (var ui = 0; ui < this.union.length; ++ui) {
+                        for (var di = 0; di < this.union[ui].length; ++di) {
+                            var start = this.deparateHoursMinutes(this.union[ui][di][0])
+                            var end = this.deparateHoursMinutes(this.union[ui][di][1])
+                            var event = {
+                                title: '',
+                                start: new Date(year, month, date + ui, start.hours, start.minutes, 0),
+                                end: new Date(year, month, date + ui, end.hours, end.minutes, 0),
+                                allDay: false
+                            };
+                            this.events.push(event);
+                        }
+                    }
+                }
+                if(this.sw) {
+                    for (var ui = 0; ui < this.empty.length; ++ui) {
+                        for (var di = 0; di < this.empty[ui].length; ++di) {
+                            var start = this.deparateHoursMinutes(this.empty[ui][di][0])
+                            var end = this.deparateHoursMinutes(this.empty[ui][di][1])
+                            var event = {
+                                title: '',
+                                start: new Date(year, month, date + ui, start.hours, start.minutes, 0),
+                                end: new Date(year, month, date + ui, end.hours, end.minutes, 0),
+                                allDay: false
+                            };
+                            this.events.push(event);
+                        }
+                    }
+                }
+                $("#calendar").fullCalendar('removeEvents');
+                $("#calendar").fullCalendar('addEventSource', this.events, true);
+            },
+            refreshCalendar:function(){
+                axios.post('/restful/union/', this.activeList).then((response) => {
+                    var today = new Date();
+                    var minusDate = today.getDay();
+                    var year = today.getFullYear();
+                    var month = today.getMonth();
+                    var date = today.getDate() - minusDate +1;
+                    this.union = response.data.union;
+                    this.empty = response.data.empty;
+
+                    this.events=[];
+                    if(!this.sw) {
+                        for (var ui = 0; ui < this.union.length; ++ui) {
+                            for (var di = 0; di < this.union[ui].length; ++di) {
+                                var start = this.deparateHoursMinutes(this.union[ui][di][0])
+                                var end = this.deparateHoursMinutes(this.union[ui][di][1])
+                                var event = {
+                                    title: '',
+                                    start: new Date(year, month, date + ui, start.hours, start.minutes, 0),
+                                    end: new Date(year, month, date + ui, end.hours, end.minutes, 0),
+                                    allDay: false
+                                };
+                                this.events.push(event);
+                            }
+                        }
+                    }
+                    if(this.sw) {
+                        for (var ui = 0; ui < this.empty.length; ++ui) {
+                            for (var di = 0; di < this.empty[ui].length; ++di) {
+                                var start = this.deparateHoursMinutes(this.empty[ui][di][0])
+                                var end = this.deparateHoursMinutes(this.empty[ui][di][1])
+                                var event = {
+                                    title: '',
+                                    start: new Date(year, month, date + ui, start.hours, start.minutes, 0),
+                                    end: new Date(year, month, date + ui, end.hours, end.minutes, 0),
+                                    allDay: false
+                                };
+                                this.events.push(event);
+                            }
+                        }
+                    }
+                    $("#calendar").fullCalendar('removeEvents');
+                    $("#calendar").fullCalendar('addEventSource', this.events, true);
+                    this.$refs.loading.hide();
+                })
             }
 
         },
         mounted: function () {
+            var date = new Date();
+            console.log(new Date(date.getFullYear(),date.getMonth(),date.getDay(),date.getHours(),date.getMinutes(),date.getSeconds()))
             $(function () {
                 $('#calendar').fullCalendar({
                     defaultView: 'agendaWeek',
@@ -104,12 +220,7 @@
 
                         }
                     },
-                    events: [{
-                        title: 'My Event',
-                        start: '2010-01-01T14:30:00',
-                        allDay: false
-                    }],
-
+                    events:this.events,
                     slotLabelFormat: [
                         'a h:mm'        // lower level of text
                     ],
@@ -117,7 +228,9 @@
                     minTime: "08:00:00",
                     maxTime: "22:00:00",
                     allDaySlot: false,
-                    columnHeaderFormat: 'ddd'
+                    columnHeaderFormat: 'ddd',
+                    firstDay:1,
+                    hiddenDays:[0]
 
                 })
             });
@@ -127,6 +240,10 @@
 </script>
 
 <style>
+    .overflow-scroll {
+        overflow-y: scroll;
+    }
+
     #calendar {
         max-width: 900px;
         margin: 40px auto;
@@ -237,7 +354,8 @@
     .uk-opacity-1 {
         opacity: 1 !important
     }
-    .switch-text-wrapper{
+
+    .switch-text-wrapper {
         height: calc(1em + 10px);
         width: 70px;
     }

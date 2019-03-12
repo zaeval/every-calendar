@@ -24,7 +24,7 @@
                                 <li class="uk-nav-header"><strong>{{ name }}</strong>님 환영합니다.</li>
                                 <li><a href="#">마이페이지</a></li>
                                 <li class="uk-nav-divider"></li>
-                                <li><a href="#">로그아웃</a></li>
+                                <li @click="logout"><a >로그아웃</a></li>
                             </ul>
                         </div>
                     </li>
@@ -35,13 +35,31 @@
 </template>
 
 <script>
+    import axios from "axios";
+
     export default {
         name: "GlobalNavigation",
-        props:['modal'],
-        data: function(){
+        props: ['modal'],
+        data: function () {
             return {
-              name:'헬로월드',
+                name: '헬로월드',
             };
+        },
+        created: function () {
+            axios.get('/restful/valid/').then((response) => {
+                this.name = response.data.user.name;
+            }).catch((error) => {
+                UIkit.notification('사용자 인증이 유효하지 않습니다.', 'danger');
+                this.$router.replace({name: 'login'})
+            })
+        },
+        methods: {
+            logout: function () {
+                console.log('hello');
+                this.$store.dispatch('LOGOUT').then(() => this.$router.replace({name: 'login'}))
+                    .catch((error) => {
+                    })
+            }
         }
     }
 </script>

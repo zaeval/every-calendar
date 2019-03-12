@@ -4,7 +4,7 @@ import axios from 'axios';
 
 Vue.use(Vuex);
 
-const resourceHost = 'http://councils.tk/login'
+const resourceHost = '/restful'
 
 export default new Vuex.Store({
   state: {
@@ -16,23 +16,23 @@ export default new Vuex.Store({
           data
     ) {
       // 스토어에 액세스 토큰 저장
-      state.accessToken = data.token;
-      localStorage.accessToken = data.token;
+      state.etsid = data.etsid;
+      localStorage.etsid = data.etsid;
     },
     LOGOUT(state) {
-      state.accessToken = null;
-      localStorage.accessToken = null;
+      state.etsid = null;
+      localStorage.etsid = null;
     }
   },
   actions: {
     LOGIN({
             commit
           }, {
-            email,
+            id,
             password
           }) {
       return axios.post(`${resourceHost}/login/`, {
-        email,
+        id,
         password
       })
         .then(({
@@ -40,15 +40,14 @@ export default new Vuex.Store({
                }) => {
           // LOGIN 변이 실행
           commit('LOGIN', data);
-          console.log('login');
 
-          axios.defaults.headers.common['Authorization'] = `Token ${localStorage.accessToken}`;
+          axios.defaults.headers.common['etsid'] = `${localStorage.etsid}`;
         })
     },
     LOGOUT({
              commit
            }) {
-      axios.defaults.headers.common['Authorization'] = undefined
+      axios.defaults.headers.common['etsid'] = undefined
       commit('LOGOUT');
     },
 
